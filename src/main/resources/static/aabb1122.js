@@ -1,1 +1,1 @@
-1123123123123
+//mariadbd.exe --datadir=..\data --console
