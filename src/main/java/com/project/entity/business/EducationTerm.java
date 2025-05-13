@@ -3,7 +3,6 @@ package com.project.entity.business;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.entity.enums.Term;
-import com.sun.jdi.PrimitiveValue;
 import lombok.*;
 
 import javax.persistence.*;
