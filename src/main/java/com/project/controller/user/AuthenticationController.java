@@ -7,9 +7,11 @@ import com.project.payload.response.authentication.AuthResponse;
 import com.project.payload.response.user.UserResponse;
 import com.project.service.user.AuthenticationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -27,6 +29,28 @@ public class AuthenticationController {
     public ResponseEntity<AuthResponse> authenticateUser(@RequestBody @Valid LoginRequest loginRequest){
 
         return authenticationService.authenticateUser(loginRequest);
+    }
+
+    @GetMapping("/test") // http://localhost:8080/auth/test
+    public ResponseEntity<StreamingResponseBody> test(){
+        StreamingResponseBody responseBody = outputStream -> {
+            for (int i = 0; i < 10000; i++) {
+                outputStream.write((i + "").getBytes());
+                outputStream.flush();
+            }
+          try {
+            Thread.sleep(5);
+          } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+          }
+          outputStream.close();
+        };
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/csv");
+        headers.add("Content-Disposition", "attachment; filename=test.csv");
+
+        return ResponseEntity.ok().headers(headers).body(responseBody);
     }
 
     // Not : findByUsername() ***********************************
