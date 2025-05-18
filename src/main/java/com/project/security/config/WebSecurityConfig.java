@@ -96,6 +96,6 @@ public class WebSecurityConfig {
            "/static/**",
            "/contactMessages/save",
             "/auth/login",
-            "/auth/test",
+            "/report/**",
     };
 }

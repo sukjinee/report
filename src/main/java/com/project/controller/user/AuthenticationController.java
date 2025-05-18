@@ -7,6 +7,12 @@ import com.project.payload.response.authentication.AuthResponse;
 import com.project.payload.response.user.UserResponse;
 import com.project.service.user.AuthenticationService;
 import lombok.RequiredArgsConstructor;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.export.JRXmlExporter;
+import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleXmlExporterOutput;
+import org.hibernate.cfg.JPAIndexHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,13 +21,16 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
-    private final AuthenticationService authenticationService;
+  private final AuthenticationService authenticationService;
 
 
     // Not: Login() ********************************************
@@ -31,37 +40,15 @@ public class AuthenticationController {
         return authenticationService.authenticateUser(loginRequest);
     }
 
-    @GetMapping("/test") // http://localhost:8080/auth/test
-    public ResponseEntity<StreamingResponseBody> test(){
-        StreamingResponseBody responseBody = outputStream -> {
-            for (int i = 0; i < 10000; i++) {
-                outputStream.write((i + "").getBytes());
-                outputStream.flush();
-            }
-          try {
-            Thread.sleep(5);
-          } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-          }
-          outputStream.close();
-        };
+  // Not : findByUsername() ***********************************
+  @GetMapping("/user") // http://localhost:8080/auth/user   + GET
+  @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANT_MANAGER','TEACHER','STUDENT')")
+  public ResponseEntity<UserResponse> findByUsername(HttpServletRequest request){
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/csv");
-        headers.add("Content-Disposition", "attachment; filename=test.csv");
-
-        return ResponseEntity.ok().headers(headers).body(responseBody);
-    }
-
-    // Not : findByUsername() ***********************************
-    @GetMapping("/user") // http://localhost:8080/auth/user   + GET
-    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANT_MANAGER','TEACHER','STUDENT')")
-    public ResponseEntity<UserResponse> findByUsername(HttpServletRequest request){
-
-       String username = (String) request.getAttribute("username");
-       UserResponse userResponse =  authenticationService.findByUsername(username);
-       return ResponseEntity.ok(userResponse);
-    }
+    String username = (String) request.getAttribute("username");
+    UserResponse userResponse =  authenticationService.findByUsername(username);
+    return ResponseEntity.ok(userResponse);
+  }
 
 
     // Not: updatePassword() ************************************
