@@ -5,11 +5,8 @@ import com.project.service.report.ReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,34 +28,19 @@ public class ReportController {
 
     @GetMapping("/compile") // http://localhost:8080/report/compile
     public ResponseEntity<String> compile() throws JRException {
-        log.info("나오는거지??");
         reportService.compile();
         return ResponseEntity.ok("OK");
     }
 
-    @GetMapping("/make/{svcSeq}") // http://localhost:8080/report/test2
-    public void mskeReportBySvcSeq(@RequestBody @Valid ReportRequest reportRequest) throws JRException {
+    @PostMapping("/make/{svcSeq}/{type}") // http://localhost:8080/report/make/999/pdf
+    public void makeReportBySvcSeq(@RequestBody @Valid ReportRequest reportRequest,
+                                   @PathVariable("svcSeq") String svcSeq,
+                                   @PathVariable("type") String type) throws JRException {
 
-        fill();
-        pdf();
-    }
-
-    public void fill() throws JRException {
-        long start = System.currentTimeMillis();
-        //Preparing parameters
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("ReportTitle", "Address Report");
-        parameters.put("FilterClause", "'Boston', 'Chicago', 'Oslo'");
-        parameters.put("OrderClause", "City");
-
-        JasperFillManager.fillReportToFile(REPORT_ROOT + "/reports/compiled/FirstJasper.jasper", parameters);
-        System.err.println("Filling time : " + (System.currentTimeMillis() - start));
-    }
-
-    public void pdf() throws JRException {
-        long start = System.currentTimeMillis();
-        JasperExportManager.exportReportToPdfFile(REPORT_ROOT + "/reports/filled/FirstJasper.jrprint");
-        System.err.println("PDF creation time : " + (System.currentTimeMillis() - start));
+        reportRequest.setSvcSeq(svcSeq);
+        reportRequest.setType(type);
+//        reportService.make(reportRequest);
+//        reportService.download(reportRequest);
     }
 }
 

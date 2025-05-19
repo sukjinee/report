@@ -20,4 +20,6 @@ public class ReportRequest extends BaseUserRequest {
     @Size(min = 1, message = "Service sequence should be at least 1 chars")
     @Pattern(regexp="\\d}", message="Service sequence must consist of  0-9.")
     private String svcSeq;
+
+    private String type;
 }
